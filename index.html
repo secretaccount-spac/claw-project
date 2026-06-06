@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chore Claw Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="arcade-room">
+    <section class="machine" aria-label="Chore claw machine">
+      <div class="top-sign">
+        <div class="chrome-edge"></div>
+        <div class="bulbs" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div>
+          <p class="eyebrow">Kim's cabinet no. 08</p>
+          <h1>Chore Claw</h1>
+        </div>
+        <div class="marquee-reflection"></div>
+      </div>
+
+      <div class="cabinet">
+        <div class="left-column">
+          <div class="coin-door">
+            <div class="coin-slot"></div>
+            <div class="coin-label">25c</div>
+            <div class="return-slot"></div>
+          </div>
+          <div class="sticker">Play for XP</div>
+        </div>
+
+        <div class="glass">
+          <div class="glass-shine"></div>
+          <div class="rail">
+            <div class="rail-track"></div>
+            <div class="claw-rig" id="clawRig">
+              <div class="motor"></div>
+              <div class="cable" id="cable"></div>
+              <div class="claw" id="claw">
+                <span class="arm arm-left"></span>
+                <span class="arm arm-mid"></span>
+                <span class="arm arm-right"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="playfield" id="playfield">
+            <div class="back-lights" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="prize-chute">
+            <div class="chute-lip">Prize chute</div>
+            <div class="chute-mouth" id="chuteMouth"></div>
+          </div>
+        </div>
+
+        <aside class="right-column">
+          <div class="scoreboard">
+            <p>Streak</p>
+            <strong id="streak">0</strong>
+          </div>
+          <div class="scoreboard">
+            <p>XP</p>
+            <strong id="xp">000</strong>
+          </div>
+          <div class="mission-card" id="missionCard">
+            <span>Target chore</span>
+            <strong id="selectedChore">Move the claw over a capsule, then drop.</strong>
+          </div>
+        </aside>
+      </div>
+
+      <div class="controls">
+        <div class="joystick" aria-hidden="true">
+          <button class="joy-btn up" data-move="up" aria-label="Move claw up"></button>
+          <button class="joy-btn left" data-move="left" aria-label="Move claw left"></button>
+          <div class="stick"></div>
+          <button class="joy-btn right" data-move="right" aria-label="Move claw right"></button>
+          <button class="joy-btn down" data-move="down" aria-label="Move claw down"></button>
+        </div>
+
+        <button class="drop-button" id="dropButton">
+          <span class="button-light"></span>
+          Drop Claw
+        </button>
+
+        <div class="instructions">
+          <span class="key">Arrows</span>
+          <span class="key">Space</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="ticket-panel" aria-label="Chore tickets">
+      <div class="ticket-header">
+        <p>Choose your grab</p>
+        <button id="shuffleButton" title="Shuffle capsules">Shuffle</button>
+      </div>
+      <div class="ticket-list" id="ticketList"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
