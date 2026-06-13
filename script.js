@@ -16,8 +16,26 @@ const layout = [
   [20, 86], [37, 91], [53, 88], [68, 91], [82, 84]
 ];
 
+const colorPairs = [
+  ["#ffdc5f", "#ff6b6b"],
+  ["#68e1fd", "#2d6cdf"],
+  ["#a8ff78", "#33b86f"],
+  ["#f7a8ff", "#8c52ff"],
+  ["#ffbd59", "#ff5757"],
+  ["#7cf7d4", "#139e9a"],
+  ["#fff174", "#ff9f1c"],
+  ["#a2d2ff", "#4361ee"],
+  ["#ffd6a5", "#fb8500"],
+  ["#caffbf", "#2ec4b6"],
+  ["#ff9fce", "#e6398a"],
+  ["#b8f7ff", "#00a6d6"]
+];
+
 const playfield = document.querySelector("#playfield");
 const ticketList = document.querySelector("#ticketList");
+const choreForm = document.querySelector("#choreForm");
+const choreNameInput = document.querySelector("#choreNameInput");
+const choreXpInput = document.querySelector("#choreXpInput");
 const clawRig = document.querySelector("#clawRig");
 const claw = document.querySelector("#claw");
 const cable = document.querySelector("#cable");
@@ -42,6 +60,43 @@ let selectedIndex = null;
 const caughtChores = new Set();
 const heldDirections = new Set();
 
+function ensureLayout(index) {
+  if (layout[index]) return layout[index];
+
+  const overflowIndex = index - layout.length;
+  const column = overflowIndex % 5;
+  const row = Math.floor(overflowIndex / 5);
+  const x = 16 + column * 16 + (row % 2) * 5;
+  const y = Math.min(92, 62 + (row % 4) * 8 + (column % 2) * 5);
+  layout[index] = [x, y];
+  return layout[index];
+}
+
+function normalizeChoreName(value) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function addChore(name, xpValue) {
+  const cleanName = normalizeChoreName(name);
+  if (!cleanName) {
+    showToast("Type a chore first.");
+    return;
+  }
+
+  const xpReward = Math.max(1, Math.floor(Number(xpValue) || 50));
+  const colors = colorPairs[chores.length % colorPairs.length];
+  chores.push({ name: cleanName, xp: xpReward, colors });
+  ensureLayout(chores.length - 1);
+  choreNameInput.value = "";
+  choreXpInput.value = "50";
+  selectedIndex = chores.length - 1;
+  renderCapsules();
+  renderTickets();
+  highlightCapsules();
+  selectedChore.textContent = `Added: ${cleanName}. Move the claw over it.`;
+  showToast(`${cleanName} added to the machine.`);
+}
+
 function renderCapsules() {
   document.querySelectorAll(".capsule, .floor").forEach((item) => item.remove());
 
@@ -51,16 +106,19 @@ function renderCapsules() {
 
   chores.forEach((chore, index) => {
     if (caughtChores.has(index)) return;
+    const [x, y] = ensureLayout(index);
 
     const capsule = document.createElement("button");
     capsule.className = "capsule";
     capsule.type = "button";
     capsule.dataset.index = index;
-    capsule.style.left = `${layout[index][0]}%`;
-    capsule.style.top = `${layout[index][1]}%`;
+    capsule.style.left = `${x}%`;
+    capsule.style.top = `${y}%`;
     capsule.style.setProperty("--c1", chore.colors[0]);
     capsule.style.setProperty("--c2", chore.colors[1]);
     capsule.style.setProperty("--tilt", `${(index % 5 - 2) * 7}deg`);
+    capsule.style.fontSize = `${Math.max(0.52, Math.min(0.92, 1.55 - chore.name.length * 0.025))}rem`;
+    capsule.title = chore.name;
     capsule.textContent = chore.name;
     capsule.addEventListener("click", () => aimAt(index));
     playfield.appendChild(capsule);
@@ -75,12 +133,35 @@ function renderTickets() {
 
     const ticket = document.createElement("article");
     ticket.className = "ticket";
-    ticket.innerHTML = `
-      <span class="ticket-dot" style="--c1:${chore.colors[0]}; --c2:${chore.colors[1]}"></span>
-      <span><strong>${chore.name}</strong><small>${chore.xp} XP reward</small></span>
-      <button type="button" data-index="${index}">Target</button>
-    `;
-    ticket.querySelector("button").addEventListener("click", () => aimAt(index));
+
+    const dot = document.createElement("span");
+    dot.className = "ticket-dot";
+    dot.style.setProperty("--c1", chore.colors[0]);
+    dot.style.setProperty("--c2", chore.colors[1]);
+
+    const text = document.createElement("span");
+    const name = document.createElement("strong");
+    name.textContent = chore.name;
+    const reward = document.createElement("small");
+    reward.textContent = `${chore.xp} XP reward`;
+    text.append(name, reward);
+
+    const actions = document.createElement("span");
+    actions.className = "ticket-actions";
+    const targetButton = document.createElement("button");
+    targetButton.type = "button";
+    targetButton.dataset.index = index;
+    targetButton.textContent = "Target";
+    targetButton.addEventListener("click", () => aimAt(index));
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "remove-ticket";
+    removeButton.dataset.index = index;
+    removeButton.textContent = "Remove";
+    removeButton.addEventListener("click", () => removeChore(index));
+    actions.append(targetButton, removeButton);
+
+    ticket.append(dot, text, actions);
     ticketList.appendChild(ticket);
   });
 
@@ -90,6 +171,18 @@ function renderTickets() {
     empty.textContent = "All chores caught. Cabinet cleared.";
     ticketList.appendChild(empty);
   }
+}
+
+function removeChore(index) {
+  if (busy || caughtChores.has(index)) return;
+
+  caughtChores.add(index);
+  if (selectedIndex === index) selectedIndex = null;
+  renderCapsules();
+  renderTickets();
+  highlightCapsules();
+  selectedChore.textContent = `${chores[index].name} removed from the machine.`;
+  showToast("Chore removed.");
 }
 
 function updateClaw() {
@@ -132,6 +225,7 @@ function nearestCapsule(includeCaught = false) {
   let closestDistance = Infinity;
 
   layout.forEach(([x, y], index) => {
+    ensureLayout(index);
     if (!includeCaught && caughtChores.has(index)) return;
 
     const distance = Math.hypot(clawX - x, (clawY + 32) - y);
@@ -334,6 +428,10 @@ document.addEventListener("keyup", (event) => {
 
 dropButton.addEventListener("click", dropClaw);
 shuffleButton.addEventListener("click", shuffleCapsules);
+choreForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  addChore(choreNameInput.value, choreXpInput.value);
+});
 
 renderCapsules();
 renderTickets();

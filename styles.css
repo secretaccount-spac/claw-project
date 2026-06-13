@@ -320,6 +320,8 @@ h1 {
   font-weight: 900;
   text-align: center;
   line-height: 1.02;
+  overflow: hidden;
+  overflow-wrap: anywhere;
   transform: translate(-50%, -50%) rotate(var(--tilt));
   background:
     radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.28) 20%, transparent 22%),
@@ -617,6 +619,45 @@ h1 {
   padding-inline: 16px;
 }
 
+.chore-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 74px 64px;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px;
+  border: 2px solid rgba(255, 211, 90, 0.42);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.chore-form input {
+  width: 100%;
+  min-height: 42px;
+  border: 2px solid rgba(255, 243, 191, 0.28);
+  border-radius: 7px;
+  padding: 0 10px;
+  color: #fff7d7;
+  background: #11141c;
+  font-weight: 900;
+  outline: 0;
+}
+
+.chore-form input:focus {
+  border-color: rgba(128, 255, 138, 0.86);
+  box-shadow: 0 0 0 3px rgba(128, 255, 138, 0.14);
+}
+
+.chore-form button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 999px;
+  color: #12151c;
+  background: linear-gradient(#86ffe9, #18b7b2);
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 0 5px 0 rgba(5, 74, 77, 0.8);
+}
+
 .ticket-list {
   display: grid;
   gap: 10px;
@@ -624,7 +665,7 @@ h1 {
 
 .ticket {
   display: grid;
-  grid-template-columns: 42px 1fr auto;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
   padding: 12px;
@@ -645,11 +686,19 @@ h1 {
 .ticket strong {
   display: block;
   font-size: 0.96rem;
+  overflow-wrap: anywhere;
 }
 
 .ticket small {
   color: #85fff0;
   font-weight: 800;
+}
+
+.ticket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .ticket button {
@@ -660,6 +709,11 @@ h1 {
   color: #12151c;
   background: #ffe47d;
   font-weight: 900;
+}
+
+.ticket button.remove-ticket {
+  color: #fff8d2;
+  background: linear-gradient(#ff5668, #9f071b);
 }
 
 .ticket-empty {
@@ -755,9 +809,18 @@ h1 {
     grid-template-columns: 36px 1fr;
   }
 
-  .ticket button {
+  .ticket-actions {
     grid-column: 2;
     justify-self: start;
+    justify-content: flex-start;
+  }
+
+  .chore-form {
+    grid-template-columns: 1fr 72px;
+  }
+
+  .chore-form button {
+    grid-column: 1 / -1;
   }
 }
 

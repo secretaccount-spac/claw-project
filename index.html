@@ -104,6 +104,11 @@
         <p>Choose your grab</p>
         <button id="shuffleButton" title="Shuffle capsules">Shuffle</button>
       </div>
+      <form class="chore-form" id="choreForm" aria-label="Add chore">
+        <input id="choreNameInput" type="text" placeholder="Add a chore" autocomplete="off" required>
+        <input id="choreXpInput" type="number" min="1" step="5" value="50" aria-label="XP reward">
+        <button type="submit">Add</button>
+      </form>
       <div class="ticket-list" id="ticketList"></div>
     </section>
   </main>
